@@ -40,7 +40,7 @@ import sys
 _PLATFORM_NAME = "MicroPython"
 
 # used internally in this file to get i2c class object 
-def _connectToI2CBus(sda=None, scl=None, freq=100000, *args, **argk):
+def _connectToI2CBus(sda=None, scl=None, freq=100000, esp32_i2c=None, *args, **argk):
 	try:
 		from machine import I2C, Pin
 		if sys.platform == 'rp2':
@@ -57,7 +57,9 @@ def _connectToI2CBus(sda=None, scl=None, freq=100000, *args, **argk):
 		elif 'xbee' in sys.platform:
 			return I2C(id=1, freq=freq)
 		elif 'esp32' in sys.platform:
-			if sda is not None and scl is not None:
+			if esp32_i2c is not None:
+				return esp32_i2c
+			elif sda is not None and scl is not None:
 				return I2C(scl=Pin(scl), sda=Pin(sda), freq=freq)
 			else:
 				return I2C()
@@ -80,14 +82,16 @@ class MicroPythonI2C(I2CDriver):
 	name = _PLATFORM_NAME
 	_i2cbus = None
 
-	def __init__(self, sda=None, scl=None, freq=100000, *args, **argk):
+	def __init__(self, sda=None, scl=None, freq=100000, esp32_i2c=None, *args, **argk):
 		I2CDriver.__init__(self) # init super
 
 		self._sda = sda
 		self._scl = scl
 		self._freq = freq
+		self._esp32_i2c = esp32_i2c
 
-		self._i2cbus = _connectToI2CBus(sda=self._sda, scl=self._scl, freq=self._freq)
+		self._i2cbus = _connectToI2CBus(sda=self._sda, scl=self._scl, freq=self._freq, \
+      									esp32_i2c=self._esp32_i2c, *args, **argk)
 
 	@classmethod
 	def isPlatform(cls):

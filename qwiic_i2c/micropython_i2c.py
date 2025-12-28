@@ -90,8 +90,11 @@ class MicroPythonI2C(I2CDriver):
 		self._freq = freq
 		self._esp32_i2c = esp32_i2c
 
-		self._i2cbus = _connectToI2CBus(sda=self._sda, scl=self._scl, freq=self._freq, \
-      									esp32_i2c=self._esp32_i2c, *args, **argk)
+		self._i2cbus = _connectToI2CBus(
+				sda=self._sda, 
+				scl=self._scl, 
+				freq=self._freq, 
+				esp32_i2c=self._esp32_i2c)
 
 	@classmethod
 	def isPlatform(cls):
